@@ -353,41 +353,41 @@ export const refreshThreads = internalMutation({
   },
 });
 
-const resolvedTagId = process.env.DISCORD_RESOLVED_TAG_ID;
-if (!resolvedTagId)
-  throw new Error("Specify DISCORD_RESOLVED_TAG_ID as an env variable");
+// const resolvedTagId = process.env.DISCORD_RESOLVED_TAG_ID;
+// if (!resolvedTagId)
+//   throw new Error("Specify DISCORD_RESOLVED_TAG_ID as an env variable");
 
 export const resolveThread = internalMutation({
   args: {
     threadId: v.id("threads"),
   },
-  handler: async ({ db, scheduler }, { threadId }) => {
+  handler: async ({ db }, { threadId }) => {
     const thread = await db.get(threadId);
     if (!thread) {
       throw "Not a thread";
     }
-    if (thread.appliedTags.indexOf(resolvedTagId) !== -1) {
-      console.log("Tag already applied, refusing to apply");
-      return;
-    }
+    // if (thread.appliedTags.indexOf(resolvedTagId) !== -1) {
+    //   console.log("Tag already applied, refusing to apply");
+    //   return;
+    // }
     if (!thread.channelId) {
       throw "No channel associated with the thread";
     }
     const channel = await db.get(thread.channelId);
     if (!channel) throw new Error("Channel not found:" + thread.channelId);
-    if (!channel.availableTags?.find((t) => t.id === resolvedTagId)) {
-      console.log("Tag not found, refusing to apply");
-      return;
-    }
-    const tags = [...thread.appliedTags, resolvedTagId];
-    await db.patch(threadId, {
-      appliedTags: tags,
-    });
+    // if (!channel.availableTags?.find((t) => t.id === resolvedTagId)) {
+    //   console.log("Tag not found, refusing to apply");
+    //   return;
+    // }
+    // const tags = [...thread.appliedTags, resolvedTagId];
+    // await db.patch(threadId, {
+    //   appliedTags: tags,
+    // });
     await touchThread({ db }, { threadId });
-    await scheduler.runAfter(0, internal.discord_node.applyTags, {
-      threadId: thread.id,
-      tags,
-    });
+    // await scheduler.runAfter(0, internal.discord_node.applyTags, {
+    //   threadId: thread.id,
+    //   tags,
+    // });
   },
 });
 
